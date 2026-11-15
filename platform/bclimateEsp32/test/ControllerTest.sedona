@@ -1,0 +1,37 @@
+** These tests never enable a physical output or download firmware.
+class ControllerTest extends Test
+{
+  static inline AnalogInput ai
+  static inline PwmOutput ao
+  static inline PulseCounter counter
+  static inline I2cService i2c
+  static inline SpiService spi
+  static inline SerialService serial
+  static inline RtuService rtu
+  static inline MqttService mqtt
+  static inline OtaService ota
+  static void testDisabled() {
+    ai.execute(); ao.execute(); counter.execute()
+    assert(!ai.valid); assert(ai.fault == -6)
+    assert(ao.duty == 0); assert(ao.fault == -6)
+    assert(counter.count == 0L); assert(counter.fault == -6)
+    i2c.transfer(); spi.transfer(); serial.transfer()
+    assert(i2c.fault == -6); assert(spi.fault == -6); assert(serial.fault == -6)
+    rtu.request(); assert(rtu.fault == -4)
+    mqtt.publish(); assert(mqtt.fault == -4)
+    ota.update(); assert(ota.fault == -6)
+  }
+  static void testInvalidConfig() {
+    ai.enabled = true; ai.alpha = 0.0; ai.execute()
+    assert(ai.fault == -1); assert(!ai.valid)
+    ai.enabled = false; ai.alpha = 1.0; ai.stop()
+    ao.enabled = true; ao.in = null; ao.execute()
+    assert(ao.fault == -8); assert(ao.duty == 0)
+    ao.enabled = false; ao.in = 0.0; ao.stop()
+    mqtt.enabled = true; mqtt.execute(); assert(mqtt.fault < 0)
+    mqtt.enabled = false; mqtt.stop()
+    rtu.enabled = true; rtu.execute(); assert(rtu.fault < 0)
+    rtu.enabled = false; rtu.stop()
+    ota.enabled = true; ota.update(); assert(ota.fault < 0); ota.enabled = false
+  }
+}

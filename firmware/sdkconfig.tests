@@ -1,0 +1,5 @@
+# Test profile: run tests.scode (sedona unit tests) instead of the platform
+CONFIG_SEDONA_NET_NONE=y
+CONFIG_SEDONA_BOOT_TESTS=y
+
+CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ_240=y

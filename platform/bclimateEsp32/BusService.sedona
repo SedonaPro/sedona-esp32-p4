@@ -1,0 +1,42 @@
+** Bounded asynchronous transactions. transfer() submits; execute() collects.
+** RX/TX buffers hold at most 256 bytes. A service owns one hardware controller.
+abstract class BusService extends Service
+{
+  @config property bool enabled = false
+  @config property int timeoutMs = 100
+  @config property int rxLength = 0
+  @config property Buf(256) tx
+  @readonly property Buf(256) rx
+  @readonly property bool busy = false
+  @readonly property int fault = -6
+  @readonly property int completed = 0
+  internal int kind = 0
+  internal bool opened = false
+  internal virtual int openBus() { return -7 }
+  action void transfer() {
+    if (!enabled) { fault := -6; return }
+    if (busy) { fault := -9; return }
+    int r = openBus()
+    if (r != 0) { fault := r; return }
+    opened = true
+    r = submit(this, kind, tx.bytes, tx.size, rxLength, timeoutMs)
+    fault := r
+    if (r == 0) { busy := true; rx.size = 0 }
+  }
+  override virtual void execute() {
+    if (!enabled) { stop(); return }
+    if (!busy) return
+    int r = collect(this, kind, rx.bytes, rx.bytesLen)
+    if (r == -9) return
+    busy := false
+    fault := r < 0 ? r : 0
+    if (r >= 0) { rx.size = r; completed := completed + 1 }
+  }
+  override virtual void stop() {
+    close(this, kind); opened = false; busy := false; rx.size = 0; fault := -6
+  }
+  internal static native int configure(BusService owner, int kind, int a, int b, int c, int d, int rate, int mode)
+  internal static native int submit(BusService owner, int kind, byte[] tx, int txLen, int rxLen, int timeoutMs)
+  internal static native int collect(BusService owner, int kind, byte[] rx, int capacity)
+  internal static native void close(BusService owner, int kind)
+}

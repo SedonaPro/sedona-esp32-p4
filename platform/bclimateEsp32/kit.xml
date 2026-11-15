@@ -1,0 +1,51 @@
+<!--
+  -  Sedona Kit: platform support for ESP32-S3 (ESP-IDF, FreeRTOS)
+  -->
+<sedonaKit
+ name = "bclimateEsp32"
+ vendor = "Bclimate"
+ description = "Platform support for ESP32 controllers (ESP-IDF)"
+ includeSource = "false"
+ doc = "true"
+>
+  <depend on="sys 1.2+" />
+
+  <source dir="."/>
+  <source dir="test" testonly="true"/>
+
+  <native qname="bclimateEsp32::Esp32PlatformService.rebootSystem"  id="110::0" />
+  <native qname="bclimateEsp32::Esp32PlatformService.heapMinFree"   id="110::1" />
+  <native qname="bclimateEsp32::Esp32PlatformService.uptimeSec"     id="110::2" />
+  <native qname="bclimateEsp32::Esp32PlatformService.chipResetReason"   id="110::3" />
+  <native qname="bclimateEsp32::GpioPoint.configure" id="110::4" />
+  <native qname="bclimateEsp32::GpioPoint.readPin" id="110::5" />
+  <native qname="bclimateEsp32::GpioPoint.writePin" id="110::6" />
+  <native qname="bclimateEsp32::GpioPoint.release" id="110::7" />
+  <native qname="bclimateEsp32::AnalogInput.sample" id="110::8" />
+  <native qname="bclimateEsp32::AnalogInput.lastRaw" id="110::9" />
+  <native qname="bclimateEsp32::AnalogInput.close" id="110::10" />
+  <native qname="bclimateEsp32::PwmOutput.write" id="110::11" />
+  <native qname="bclimateEsp32::PwmOutput.close" id="110::12" />
+  <native qname="bclimateEsp32::PulseCounter.open" id="110::13" />
+  <native qname="bclimateEsp32::PulseCounter.read" id="110::14" />
+  <native qname="bclimateEsp32::PulseCounter.clear" id="110::15" />
+  <native qname="bclimateEsp32::PulseCounter.close" id="110::16" />
+  <native qname="bclimateEsp32::Diagnostics.metric" id="110::17" />
+  <native qname="bclimateEsp32::BusService.configure" id="110::18" />
+  <native qname="bclimateEsp32::BusService.submit" id="110::19" />
+  <native qname="bclimateEsp32::BusService.collect" id="110::20" />
+  <native qname="bclimateEsp32::BusService.close" id="110::21" />
+  <native qname="bclimateEsp32::MqttService.open" id="110::22" />
+  <native qname="bclimateEsp32::MqttService.status" id="110::23" />
+  <native qname="bclimateEsp32::MqttService.poll" id="110::24" />
+  <native qname="bclimateEsp32::MqttService.send" id="110::25" />
+  <native qname="bclimateEsp32::MqttService.close" id="110::26" />
+  <native qname="bclimateEsp32::RtuService.open" id="110::27" />
+  <native qname="bclimateEsp32::RtuService.status" id="110::28" />
+  <native qname="bclimateEsp32::RtuService.command" id="110::29" />
+  <native qname="bclimateEsp32::RtuService.word" id="110::30" />
+  <native qname="bclimateEsp32::RtuService.close" id="110::31" />
+  <native qname="bclimateEsp32::OtaService.begin" id="110::32" />
+  <native qname="bclimateEsp32::OtaService.status" id="110::33" />
+  <native qname="bclimateEsp32::OtaService.setTime" id="110::34" />
+</sedonaKit>

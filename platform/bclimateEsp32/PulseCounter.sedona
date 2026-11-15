@@ -1,0 +1,25 @@
+** Hardware rising-edge counter, independent of the Sedona scan period.
+class PulseCounter extends Component
+{
+  @config property int pin = -1
+  @config property bool enabled = false
+  @readonly property long count = 0L
+  @readonly property int fault = -6
+  internal int activePin = -1
+  override virtual void execute() {
+    if (!enabled || activePin != pin) { close(this, activePin); activePin = -1 }
+    if (!enabled) { fault := -6; return }
+    fault := open(this, pin)
+    if (fault != 0) return
+    activePin = pin
+    long value = read(this)
+    if (value < 0L) { fault := (int)value; return }
+    count := value
+  }
+  action void reset() { if (activePin >= 0) { fault := clear(this); if (fault == 0) count := 0L } }
+  override virtual void stop() { close(this, activePin); activePin = -1; fault := -6 }
+  internal static native int open(PulseCounter owner, int pin)
+  internal static native long read(PulseCounter owner)
+  internal static native int clear(PulseCounter owner)
+  internal static native void close(PulseCounter owner, int pin)
+}

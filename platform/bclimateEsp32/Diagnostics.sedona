@@ -1,0 +1,35 @@
+** Sampled once per second. CPU is per-core busy time in percent.
+class Diagnostics extends Component
+{
+  @readonly property float cpu0 = 0.0
+  @readonly property float cpu1 = 0.0
+  @readonly property int freeHeap = 0
+  @readonly property int minFreeHeap = 0
+  @readonly property int largestFreeBlock = 0
+  @readonly property int vmStackFree = 0
+  @readonly property long cycles = 0L
+  @readonly property long overruns = 0L
+  @readonly property float periodAvgMs = 0.0
+  @readonly property float periodMaxMs = 0.0
+  @readonly property int fault = -6
+  internal int lastSec = -1
+  override virtual void execute() {
+    int second = (int)metric(5)
+    if (second == lastSec) return
+    lastSec = second
+    int r = (int)metric(13)
+    fault := r
+    if (r != 0) return
+    cpu0 := (float)metric(0) / 100.0
+    cpu1 := (float)metric(1) / 100.0
+    freeHeap := (int)metric(2)
+    minFreeHeap := (int)metric(3)
+    largestFreeBlock := (int)metric(4)
+    vmStackFree := (int)metric(12)
+    cycles := metric(6)
+    overruns := metric(10)
+    periodAvgMs := (float)metric(7) / 1000.0
+    periodMaxMs := (float)metric(9) / 1000.0
+  }
+  internal static native long metric(int which)
+}

@@ -1,0 +1,13 @@
+** Digital input sampled once per Sedona scan. Read fault before using out.
+class GpioInput extends GpioPoint
+{
+  @readonly property bool out = false
+
+  override virtual void execute()
+  {
+    if (!prepare(false, false)) { out := false; return }
+    int level = readPin(this, activePin)
+    if (level < 0) { fault := level; out := false; return }
+    out := (level != 0) != invert
+  }
+}

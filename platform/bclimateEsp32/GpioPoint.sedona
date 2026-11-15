@@ -1,0 +1,40 @@
+** Common GPIO configuration. Pin numbers are chip GPIO numbers, not header positions.
+** fault: 0 OK, -1 invalid pin/pull, -2 not allowed, -3 already owned,
+** -4 not configured, -5 driver failure, -6 disabled, -7 unsupported simulator.
+class GpioPoint extends Component
+{
+  @config property int pin = -1
+  @config property bool enabled = false
+  ** 0 floating, 1 pull-up, 2 pull-down
+  @config property int pull = 0
+  @config property bool invert = false
+  @readonly property int fault = -6
+  internal int activePin = -1
+
+  internal bool prepare(bool output, bool initial)
+  {
+    if (!enabled || activePin != pin)
+    {
+      release(this, activePin)
+      activePin = -1
+    }
+    if (!enabled) { fault := -6; return false }
+    int r = configure(this, pin, output, pull, initial)
+    fault := r
+    if (r != 0) { release(this, activePin); activePin = -1; return false }
+    activePin = pin
+    return true
+  }
+
+  override virtual void stop()
+  {
+    release(this, activePin)
+    activePin = -1
+    fault := -6
+  }
+
+  internal static native int configure(GpioPoint owner, int pin, bool output, int pull, bool initial)
+  internal static native int readPin(GpioPoint owner, int pin)
+  internal static native int writePin(GpioPoint owner, int pin, bool level)
+  internal static native void release(GpioPoint owner, int pin)
+}

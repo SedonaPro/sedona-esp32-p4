@@ -1,0 +1,12 @@
+** SPI2 master, 8-bit full duplex; zero padding when rxLength exceeds tx.size.
+final class SpiService extends BusService
+{
+  @config property int sck = -1
+  @config property int mosi = -1
+  @config property int miso = -1
+  @config property int cs = -1
+  @config property int clockHz = 1000000
+  @config property int mode = 0
+  SpiService() { kind = 1 }
+  internal override int openBus() { return configure(this, 1, sck, mosi, miso, cs, clockHz, mode) }
+}

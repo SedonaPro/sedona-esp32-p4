@@ -1,0 +1,26 @@
+** Firmware-only HTTPS OTA. kits.scode/app.sab are updated separately via SOX.
+** Optional PEM CA allows a private HTTPS firmware server. Empty uses root bundle.
+class OtaService extends Service
+{
+  @config property bool enabled = false
+  @config @asStr property Buf(256) url
+  @config @asStr property Buf(2048) caCert
+  ** Used only by setClock action if network time is unavailable.
+  property long utcSeconds = 0L
+  @confirmRequired action void setClock() { fault := setTime(utcSeconds) }
+  @readonly property int phase = 0
+  @readonly property int percent = 0
+  @readonly property int fault = 0
+  @confirmRequired action void update() {
+    if (!enabled) { fault := -6; return }
+    fault := begin(url.toStr(), caCert.toStr())
+  }
+  override virtual void execute() {
+    phase := status(0)
+    percent := status(1)
+    fault := status(2)
+  }
+  internal static native int setTime(long seconds)
+  internal static native int begin(Str url, Str caCert)
+  internal static native int status(int which)
+}

@@ -1,0 +1,42 @@
+** GPIO component tests never drive a physical pin.
+class GpioTest extends Test
+{
+  static inline GpioInput di
+  static inline GpioOutput dout
+
+  static void testDefaults()
+  {
+    assert(di.pin == -1)
+    assert(!di.enabled)
+    di.execute()
+    assert(di.fault == -6)
+    assert(!di.out)
+    dout.execute()
+    assert(dout.fault == -6)
+  }
+
+  static void testInvalidPin()
+  {
+    di.pin = -1
+    di.enabled = true
+    di.execute()
+    assert(di.fault < 0)
+    assert(di.activePin == -1)
+    di.stop()
+    assert(di.fault == -6)
+    di.enabled = false
+  }
+
+  static void testNullOutput()
+  {
+    dout.in = null
+    dout.enabled = true
+    dout.execute()
+    assert(dout.fault == -8)
+    assert(dout.activePin == -1)
+    dout.enabled = false
+    dout.in = false
+    dout.execute()
+    assert(dout.fault == -6)
+  }
+}

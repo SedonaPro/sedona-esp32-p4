@@ -1,0 +1,8 @@
+dependencies:
+  idf: ">=5.3"
+  joltwallet/littlefs: "*"
+  espressif/ip101:
+    version: "^1.0.0"
+    rules:
+      - if: "target == esp32p4"
+  espressif/mqtt: "^1.0.0"

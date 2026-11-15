@@ -1,0 +1,49 @@
+** ESP-MQTT client. Incoming messages are copied from a bounded native queue.
+class MqttService extends Service
+{
+  @config property bool enabled = false
+  @config @asStr property Buf(192) broker
+  @config @asStr property Buf(64) clientId
+  @config @asStr property Buf(64) username
+  @config @asStr property Buf(128) password
+  @config @asStr property Buf(128) subscribeTopic
+  @config @asStr property Buf(128) publishTopic
+  @config property Buf(256) publishPayload
+  @config property int qos = 0
+  @config property bool retain = false
+  @readonly property bool connected = false
+  @readonly @asStr property Buf(128) receivedTopic
+  @readonly property Buf(256) receivedPayload
+  @readonly property int received = 0
+  @readonly property int dropped = 0
+  @readonly property int fault = -6
+  internal bool opened = false
+  override virtual void execute() {
+    if (!enabled) { stop(); return }
+    if (!opened) {
+      fault := open(this, broker.toStr(), clientId.toStr(), username.toStr(), password.toStr(), subscribeTopic.toStr(), qos)
+      if (fault != 0) return
+      opened = true
+    }
+    connected := status(this, 0) == 1
+    dropped := status(this, 1)
+    int r = poll(this, receivedTopic.bytes, receivedTopic.bytesLen, receivedPayload.bytes, receivedPayload.bytesLen)
+    if (r >= 0) {
+      receivedPayload.size = r
+      receivedTopic.size = status(this, 2)
+      received := received + 1
+    }
+    fault := status(this, 3)
+  }
+  action void publish() {
+    if (!opened || !connected) { fault := -4; return }
+    int r = send(this, publishTopic.toStr(), publishPayload.bytes, publishPayload.size, qos, retain)
+    fault := r < 0 ? r : 0
+  }
+  override virtual void stop() { close(this); opened = false; connected := false; fault := -6 }
+  internal static native int open(MqttService owner, Str broker, Str clientId, Str user, Str password, Str filter, int qos)
+  internal static native int status(MqttService owner, int which)
+  internal static native int poll(MqttService owner, byte[] topic, int topicCapacity, byte[] payload, int payloadCapacity)
+  internal static native int send(MqttService owner, Str topic, byte[] payload, int length, int qos, bool retain)
+  internal static native void close(MqttService owner)
+}

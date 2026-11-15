@@ -1,0 +1,10 @@
+** I2C0 master. Write tx then repeated-start read rxLength bytes.
+final class I2cService extends BusService
+{
+  @config property int sda = -1
+  @config property int scl = -1
+  @config property int address = 72
+  @config property int clockHz = 100000
+  I2cService() { kind = 0 }
+  internal override int openBus() { return configure(this, 0, sda, scl, address, -1, clockHz, 0) }
+}

@@ -1,0 +1,12 @@
+** UART1, 8 data bits, one stop bit. DE >= 0 enables RS-485 half duplex.
+** parity: 0 none, 1 odd, 2 even. Raw byte interface; Modbus owns its port separately.
+final class SerialService extends BusService
+{
+  @config property int rxPin = -1
+  @config property int txPin = -1
+  @config property int dePin = -1
+  @config property int baudRate = 19200
+  @config property int parity = 0
+  SerialService() { kind = 2 }
+  internal override int openBus() { return configure(this, 2, rxPin, txPin, dePin, -1, baudRate, parity) }
+}

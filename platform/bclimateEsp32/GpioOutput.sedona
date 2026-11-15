@@ -1,0 +1,17 @@
+** Digital output updated once per scan. Stop releases to high impedance.
+class GpioOutput extends GpioPoint
+{
+  property bool in = false
+  ** Logical level applied on first configuration, before output is enabled.
+  @config property bool initial = false
+  @readonly property bool out = false
+
+  override virtual void execute()
+  {
+    if (in == null) { stop(); fault := -8; out := false; return }
+    if (!prepare(true, initial != invert)) { out := false; return }
+    int r = writePin(this, activePin, in != invert)
+    fault := r
+    if (r == 0) out := in
+  }
+}

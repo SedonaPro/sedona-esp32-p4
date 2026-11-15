@@ -1,0 +1,22 @@
+** Links a Sedona integer to a local RtuService table entry.
+** table: 0 holding, 1 input, 2 coil, 3 discrete. write=true copies in to bank.
+class ModbusWord extends Component
+{
+  @config property bool enabled = false
+  @config property int serviceId = -1
+  @config property int table = 0
+  @config property int index = 0
+  @config property bool write = false
+  property int in = 0
+  @readonly property int out = 0
+  @readonly property int fault = -6
+  override virtual void execute() {
+    if (!enabled) { fault := -6; return }
+    Component c = Sys.app.lookup(serviceId)
+    if (c == null || !c.type.is(RtuService.type)) { fault := -4; return }
+    RtuService service = (RtuService)c
+    int r = write ? service.writeWord(table, index, in) : service.readWord(table, index)
+    if (r < 0) { fault := r; return }
+    out := r; fault := 0
+  }
+}

@@ -1,0 +1,54 @@
+** One RS-485 UART1. role: 0 master, 1 slave; disable before changing config.
+** Tables have 64 local entries: holding, input, coils, discrete.
+class RtuService extends Service
+{
+  @config property bool enabled = false
+  @config property int role = 0
+  @config property int rxPin = -1
+  @config property int txPin = -1
+  @config property int dePin = -1
+  @config property int baudRate = 19200
+  @config property int parity = 2
+  @config property int unit = 1
+  @config property int timeoutMs = 500
+  @config property int functionCode = 3
+  @config property int address = 0
+  @config property int quantity = 4
+  @config property int writeValue = 0
+  ** Automatic reads only; zero disables polling. Writes require request action.
+  @config property int pollMs = 1000
+  @readonly property bool busy = false
+  @readonly property int transactions = 0
+  @readonly property int errors = 0
+  @readonly property int fault = -6
+  internal bool opened = false
+  internal long nextPoll = 0L
+  override virtual void execute() {
+    if (!enabled) { stop(); return }
+    if (!opened) {
+      fault := open(this, rxPin, txPin, dePin, baudRate, parity, unit, role, timeoutMs)
+      if (fault != 0) return
+      opened = true
+    }
+    busy := status(this, 0) == 1
+    fault := status(this, 1)
+    transactions := status(this, 2)
+    errors := status(this, 3)
+    if (role == 0 && pollMs >= 10 && functionCode >= 1 && functionCode <= 4 && !busy && Sys.ticks() >= nextPoll) {
+      request()
+      nextPoll = Sys.ticks() + (long)pollMs * 1ms
+    }
+  }
+  action void request() {
+    if (!opened || role != 0) { fault := -4; return }
+    fault := command(this, functionCode, address, quantity, writeValue)
+  }
+  int readWord(int table, int index) { return word(this, table, index, 0, false) }
+  int writeWord(int table, int index, int value) { return word(this, table, index, value, true) }
+  override virtual void stop() { close(this); opened = false; busy := false; fault := -6; nextPoll = 0L }
+  internal static native int open(RtuService owner, int rx, int tx, int de, int baud, int parity, int unit, int role, int timeout)
+  internal static native int status(RtuService owner, int which)
+  internal static native int command(RtuService owner, int functionCode, int address, int quantity, int value)
+  internal static native int word(RtuService owner, int table, int index, int value, bool write)
+  internal static native void close(RtuService owner)
+}

@@ -1,0 +1,33 @@
+<module>
+  <kit name="bclimateEsp32"/>
+  <into path="/service">
+    <comp name="diag" type="bclimateEsp32::Diagnostics"/>
+    <comp name="i2c" type="bclimateEsp32::I2cService"/>
+    <comp name="spi" type="bclimateEsp32::SpiService"/>
+    <comp name="serial" type="bclimateEsp32::SerialService"/>
+    <comp name="mqtt" type="bclimateEsp32::MqttService"/>
+    <comp name="rtu" type="bclimateEsp32::RtuService"/>
+    <comp name="ota" type="bclimateEsp32::OtaService"/>
+  </into>
+  <into path="">
+    <comp name="io" type="sys::Folder">
+      <comp name="ai1" type="bclimateEsp32::AnalogInput"/>
+      <comp name="ai2" type="bclimateEsp32::AnalogInput"/>
+      <comp name="ai3" type="bclimateEsp32::AnalogInput"/>
+      <comp name="ai4" type="bclimateEsp32::AnalogInput"/>
+      <comp name="ao1" type="bclimateEsp32::PwmOutput"><prop name="channel" val="0"/></comp>
+      <comp name="ao2" type="bclimateEsp32::PwmOutput"><prop name="channel" val="1"/></comp>
+      <comp name="di1" type="bclimateEsp32::GpioInput"/>
+      <comp name="di2" type="bclimateEsp32::GpioInput"/>
+      <comp name="di3" type="bclimateEsp32::GpioInput"/>
+      <comp name="di4" type="bclimateEsp32::GpioInput"/>
+      <comp name="di5" type="bclimateEsp32::GpioInput"/>
+      <comp name="di6" type="bclimateEsp32::GpioInput"/>
+      <comp name="do1" type="bclimateEsp32::GpioOutput"/>
+      <comp name="do2" type="bclimateEsp32::GpioOutput"/>
+      <comp name="do3" type="bclimateEsp32::GpioOutput"/>
+      <comp name="do4" type="bclimateEsp32::GpioOutput"/>
+      <comp name="counter" type="bclimateEsp32::PulseCounter"/>
+    </comp>
+  </into>
+</module>

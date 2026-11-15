@@ -1,0 +1,37 @@
+** ADC input. External circuitry is required for 0-10 V.
+** dividerRatio is the measured front-end voltage ratio, not the ADC attenuation.
+class AnalogInput extends Component
+{
+  @config property int pin = -1
+  @config property bool enabled = false
+  @config property float dividerRatio = 1.0
+  @config property float offset = 0.0
+  ** Exponential filter coefficient: 0 < alpha <= 1.
+  @config property float alpha = 1.0
+  @readonly property int raw = 0
+  @readonly property int millivolts = 0
+  @readonly property float out = 0.0
+  @readonly property bool valid = false
+  @readonly property int fault = -6
+  internal int activePin = -1
+  override virtual void execute()
+  {
+    if (!enabled || activePin != pin) { close(this, activePin); activePin = -1; valid := false }
+    if (!enabled) { fault := -6; return }
+    if (dividerRatio <= 0.0 || alpha <= 0.0 || alpha > 1.0 ||
+        dividerRatio == null || offset == null || alpha == null) { fault := -1; valid := false; return }
+    int mv = sample(this, pin)
+    if (mv < 0) { fault := mv; valid := false; return }
+    activePin = pin
+    raw := lastRaw(this, pin)
+    millivolts := mv
+    float value = ((float)mv / 1000.0) * dividerRatio + offset
+    out := valid ? out + alpha * (value-out) : value
+    valid := true
+    fault := 0
+  }
+  override virtual void stop() { close(this, activePin); activePin = -1; valid := false; fault := -6 }
+  internal static native int sample(AnalogInput owner, int pin)
+  internal static native int lastRaw(AnalogInput owner, int pin)
+  internal static native void close(AnalogInput owner, int pin)
+}

@@ -1,0 +1,9 @@
+<module>
+  <kit name="bclimateEsp32"/>
+  <into path="">
+    <comp name="gpio" type="sys::Folder">
+      <comp name="di1" type="bclimateEsp32::GpioInput"/>
+      <comp name="do1" type="bclimateEsp32::GpioOutput"/>
+    </comp>
+  </into>
+</module>
